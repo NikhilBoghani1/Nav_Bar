@@ -1,0 +1,54 @@
+import 'package:get/get.dart';
+
+/*class ClientBottomNav extends GetxController {
+  var selectedIndex = 0.obs;
+  final RxMap<String, dynamic> projectData = <String, dynamic>{}.obs;
+  var jobData = {}.obs;     // To store job data if needed
+
+  void changeIndex(int index) {
+    selectedIndex.value = index;
+  }
+
+  void setProjectData(Map<String, dynamic> data) {
+    projectData.value = data;
+  }
+}*/
+class ClientBottomNav extends GetxController {
+  var selectedIndex = 0.obs;
+  var previousIndex = 0.obs;
+  var showDetailsScreen = false.obs;
+  var projectData = <String, dynamic>{}.obs;
+  var jobData = <String, dynamic>{}.obs;
+  var showJobDetailsScreen = false.obs;
+
+  void changeIndex(int index) {
+    if (index < 5) {
+      previousIndex.value = selectedIndex.value;
+      selectedIndex.value = index;
+      showDetailsScreen.value = false;
+      showJobDetailsScreen.value = false;
+    }
+  }
+
+  void showProjectDetails(Map<String, dynamic> data) {
+    previousIndex.value = selectedIndex.value;
+    projectData.value = data;
+    showDetailsScreen.value = true;
+  }
+
+  void showJobDetails(Map<String, dynamic> data) {
+    previousIndex.value = selectedIndex.value;
+    jobData.value = data;
+    showJobDetailsScreen.value = true;
+  }
+
+  void goBack() {
+    if (showDetailsScreen.value) {
+      showDetailsScreen.value = false;
+    } else if (showJobDetailsScreen.value) {
+      showJobDetailsScreen.value = false;
+    } else {
+      selectedIndex.value = previousIndex.value.clamp(0, 4);
+    }
+  }
+}
