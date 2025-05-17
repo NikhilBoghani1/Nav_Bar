@@ -1,0 +1,138 @@
+import 'package:flutter/material.dart';
+import 'package:surat_freelancer/extensions/margin_extension.dart';
+import '../../../all_import/all_import.dart';
+import '../../../constant/app_images.dart';
+import '../../../controller/user_controller.dart';
+import '../../client_controller/client_bottom_nav.dart';
+import '../../client_controller/client_post_controller.dart';
+import '../check_job_details/check_job_details_screen.dart';
+import '../check_project_details/check_project_details_screen.dart';
+import '../client_chat/client_chat_screen.dart';
+import '../client_home/client_home_screen.dart';
+import '../client_select_job_project/client_select_job_project_screen.dart';
+import '../view_proposals/view_proposals_screen.dart';
+
+class ClientBottomNavScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final controller = Get.find<ClientBottomNav>();
+
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (!didPop) {
+          controller.goBack();
+        }
+      },
+      child: Scaffold(
+        body: Obx(() {
+          return AnimatedSwitcher(
+            duration: Duration(milliseconds: 300),
+            transitionBuilder: (child, animation) {
+              if (controller.showDetailsScreen.value ||
+                  controller.showJobDetailsScreen.value) {
+                return SlideTransition(
+                  position: Tween<Offset>(
+                    begin: Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutQuart,
+                  )),
+                  child: child,
+                );
+              } else {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              }
+            },
+            child: _buildCurrentScreen(controller),
+          );
+        }),
+        bottomNavigationBar: _buildBottomNavigationBar(),
+      ),
+    );
+  }
+
+  Widget _buildCurrentScreen(ClientBottomNav controller) {
+    if (controller.showDetailsScreen.value) {
+      return CheckProjectDetailsScreen(
+        key: ValueKey('project-details'),
+        projectData: controller.projectData,
+      );
+    }
+
+    if (controller.showJobDetailsScreen.value) {
+      return CheckJobDetailsScreen(
+        // key: ValueKey('job-details'),
+        jobData: controller.jobData,
+      );
+    }
+
+    switch (controller.selectedIndex.value) {
+      case 0:
+        return ClientHomeScreen(key: ValueKey('home'));
+      case 1:
+        return ClientSelectJobProjectScreen(key: ValueKey('add'));
+      case 2:
+        return ViewProposalsScreen(key: ValueKey('proposals'));
+      case 3:
+        return ClientChatScreen(key: ValueKey('chat'));
+      case 4:
+        return ClientHomeScreen(key: ValueKey('profile'));
+      default:
+        return ClientHomeScreen(key: ValueKey('default'));
+    }
+  }
+
+  Widget _buildBottomNavigationBar() {
+    return Obx(() {
+      final controller = Get.find<ClientBottomNav>();
+      return NavigationBar(
+        selectedIndex: controller.selectedIndex.value,
+        onDestinationSelected: (index) {
+          if (index < 5) {
+            controller.changeIndex(index);
+          }
+        },
+        destinations: [
+          NavigationDestination(
+            icon: Image.asset(AppImages.home, width: 22, height: 22),
+            selectedIcon:
+                Image.asset(AppImages.selectedHome, width: 20, height: 20),
+            label: 'Home',
+          ),
+          NavigationDestination(
+            icon: Image.asset(AppImages.add, width: 22, height: 22),
+            selectedIcon:
+                Image.asset(AppImages.selectedAdd, width: 20, height: 20),
+            label: 'Add',
+          ),
+          NavigationDestination(
+            icon: Image.asset(AppImages.job, width: 22, height: 22),
+            selectedIcon:
+                Image.asset(AppImages.selectedJob, width: 20, height: 20),
+            label: 'Proposals',
+          ),
+          NavigationDestination(
+            icon: Image.asset(AppImages.chat, width: 22, height: 22),
+            selectedIcon:
+                Image.asset(AppImages.selectedChat, width: 20, height: 20),
+            label: 'Chat',
+          ),
+          NavigationDestination(
+            icon: Image.asset(AppImages.account, width: 22, height: 22),
+            selectedIcon:
+                Image.asset(AppImages.selectedAccount, width: 20, height: 20),
+            label: 'Profile',
+          ),
+        ],
+        height: 70,
+        indicatorColor: AppColors.mainColor.withOpacity(.2),
+        backgroundColor: Colors.white,
+      );
+    });
+  }
+}
